@@ -17,8 +17,14 @@
   if ($LASTEXITCODE -ge 8) { throw 'ファイルをコピーできませんでした。' }
   Remove-Item $tmp -Recurse -Force
   $bat = Join-Path $dest 'はじめる.bat'
-  $lnk = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Aun投稿づくり.lnk'))
-  $lnk.TargetPath = $bat; $lnk.WorkingDirectory = $dest; $lnk.Save()
-  Write-Host '入れました。次からはデスクトップの「Aun投稿づくり」をダブルクリックすると開けます。'
+  # デスクトップとスタートメニューに、アイコン付きのショートカットを置く
+  $sh = New-Object -ComObject WScript.Shell
+  foreach ($dir in [Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs')) {
+    $lnk = $sh.CreateShortcut((Join-Path $dir 'Aun投稿づくり.lnk'))
+    $lnk.TargetPath = $bat; $lnk.WorkingDirectory = $dest
+    $lnk.IconLocation = (Join-Path $dest 'studio\assets\icon.ico') + ',0'
+    $lnk.Save()
+  }
+  Write-Host '入れました。次からはデスクトップかスタートメニューの「Aun投稿づくり」をクリックすると開けます。'
   Start-Process $bat -WorkingDirectory $dest
 }
